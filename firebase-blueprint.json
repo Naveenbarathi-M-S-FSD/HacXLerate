@@ -1,0 +1,254 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Base user account profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "role": { "type": "string", "enum": ["patient", "doctor", "pharmacy"] },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "profilePhoto": { "type": "string" },
+        "language": { "type": "string", "enum": ["en", "ta"] }
+      },
+      "required": ["uid", "role", "name", "email"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "description": "Patient health details and demographics",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "healthId": { "type": "string", "maxLength": 14 },
+        "name": { "type": "string", "maxLength": 100 },
+        "dob": { "type": "string" },
+        "gender": { "type": "string" },
+        "bloodGroup": { "type": "string", "maxLength": 5 },
+        "address": { "type": "string", "maxLength": 200 },
+        "emergencyContact": { "type": "string", "maxLength": 100 },
+        "medicalConditions": { "type": "string" },
+        "allergies": { "type": "string" },
+        "currentMedications": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["uid", "healthId", "name"]
+    },
+    "Doctor": {
+      "title": "Doctor",
+      "description": "Doctor profile and credential verification details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string" },
+        "phone": { "type": "string", "maxLength": 20 },
+        "specialization": { "type": "string", "maxLength": 100 },
+        "registrationNumber": { "type": "string", "maxLength": 50 },
+        "experience": { "type": "string", "maxLength": 10 },
+        "hospitalName": { "type": "string", "maxLength": 120 },
+        "hospitalType": { "type": "string", "maxLength": 60 },
+        "address": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "demo_verified"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "specialization"]
+    },
+    "Pharmacy": {
+      "title": "Pharmacy",
+      "description": "Pharmacy enterprise profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "pharmacyName": { "type": "string", "maxLength": 120 },
+        "ownerName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string" },
+        "phone": { "type": "string", "maxLength": 20 },
+        "licenseNumber": { "type": "string", "maxLength": 50 },
+        "pharmacyType": { "type": "string" },
+        "address": { "type": "string" },
+        "verificationStatus": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "pharmacyName", "licenseNumber"]
+    },
+    "MedicalRecord": {
+      "title": "MedicalRecord",
+      "description": "Patient medical record document and extracted AI data",
+      "type": "object",
+      "properties": {
+        "recordId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "recordType": { "type": "string" },
+        "title": { "type": "string", "maxLength": 150 },
+        "uploadedFileUrl": { "type": "string" },
+        "storagePath": { "type": "string" },
+        "recordDate": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "hospitalName": { "type": "string" },
+        "extractedData": { "type": "string" },
+        "aiSummary": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["recordId", "patientId", "title", "recordType"]
+    },
+    "Medication": {
+      "title": "Medication",
+      "description": "Active or past patient prescribed medicines",
+      "type": "object",
+      "properties": {
+        "medicationId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "medicineName": { "type": "string" },
+        "dosage": { "type": "string" },
+        "frequency": { "type": "string" },
+        "duration": { "type": "string" },
+        "instructions": { "type": "string" },
+        "sourceRecordId": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["medicationId", "patientId", "medicineName"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Consultation between Doctor and Patient",
+      "type": "object",
+      "properties": {
+        "appointmentId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "purpose": { "type": "string" },
+        "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["appointmentId", "patientId", "doctorId", "date", "status"]
+    },
+    "Reminder": {
+      "title": "Reminder",
+      "description": "Pill and appointment reminders for patient",
+      "type": "object",
+      "properties": {
+        "reminderId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "repeat": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "enabled": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["reminderId", "patientId", "title", "time"]
+    },
+    "DoctorPatientAccess": {
+      "title": "DoctorPatientAccess",
+      "description": "Patient authorization granted to specific doctor",
+      "type": "object",
+      "properties": {
+        "accessId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "patientId": { "type": "string" },
+        "status": { "type": "string", "enum": ["granted", "requested", "revoked"] },
+        "grantedAt": { "type": "string" },
+        "revokedAt": { "type": "string" }
+      },
+      "required": ["doctorId", "patientId", "status"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Direct care advice from doctor to patient",
+      "type": "object",
+      "properties": {
+        "messageId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "patientId": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["messageId", "doctorId", "patientId", "message"]
+    },
+    "PharmacyPost": {
+      "title": "PharmacyPost",
+      "description": "Pharmacy stock and requirement announcement",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "pharmacyId": { "type": "string" },
+        "postType": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "medicineName": { "type": "string" },
+        "quantity": { "type": "string" },
+        "quality": { "type": "string" },
+        "manufactureDate": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "location": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["postId", "pharmacyId", "postType", "title"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Application user profiles"
+    },
+    "/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/Patient" },
+      "description": "Patient demographic and clinical records"
+    },
+    "/doctors/{doctorId}": {
+      "schema": { "$ref": "#/entities/Doctor" },
+      "description": "Doctor directory and credentials"
+    },
+    "/pharmacies/{pharmacyId}": {
+      "schema": { "$ref": "#/entities/Pharmacy" },
+      "description": "Registered pharmacy enterprises"
+    },
+    "/medicalRecords/{recordId}": {
+      "schema": { "$ref": "#/entities/MedicalRecord" },
+      "description": "Clinical documents and lab investigations"
+    },
+    "/medications/{medicationId}": {
+      "schema": { "$ref": "#/entities/Medication" },
+      "description": "Medication dosage and schedule"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Clinical appointments"
+    },
+    "/reminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/Reminder" },
+      "description": "Patient adherence reminders"
+    },
+    "/doctorPatientAccess/{accessId}": {
+      "schema": { "$ref": "#/entities/DoctorPatientAccess" },
+      "description": "Access grant permissions between doctors and patients"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Doctor to patient messages"
+    },
+    "/pharmacyPosts/{postId}": {
+      "schema": { "$ref": "#/entities/PharmacyPost" },
+      "description": "Pharmacy stock and requirement posts"
+    }
+  }
+}

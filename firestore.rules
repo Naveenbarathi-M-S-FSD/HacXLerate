@@ -1,0 +1,153 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function hasDoctorAccess(patientId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/doctorPatientAccess/$(request.auth.uid + '_' + patientId))
+        && get(/databases/$(database)/documents/doctorPatientAccess/$(request.auth.uid + '_' + patientId)).data.status == 'granted';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    // Patients collection
+    match /patients/{patientId} {
+      allow read: if isOwner(patientId) || hasDoctorAccess(patientId);
+      allow create, update: if isOwner(patientId);
+      allow delete: if false;
+    }
+
+    // Doctors collection
+    match /doctors/{doctorId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(doctorId);
+      allow delete: if false;
+    }
+
+    // Pharmacies collection
+    match /pharmacies/{pharmacyId} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(pharmacyId);
+      allow delete: if false;
+    }
+
+    // Medical Records collection
+    match /medicalRecords/{recordId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        hasDoctorAccess(resource.data.patientId)
+      );
+      allow create: if isSignedIn() && request.resource.data.patientId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    // Medications collection
+    match /medications/{medicationId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        hasDoctorAccess(resource.data.patientId)
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.patientId == request.auth.uid ||
+        hasDoctorAccess(request.resource.data.patientId)
+      );
+      allow update, delete: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        hasDoctorAccess(resource.data.patientId)
+      );
+    }
+
+    // Appointments collection
+    match /appointments/{appointmentId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.patientId == request.auth.uid ||
+        request.resource.data.doctorId == request.auth.uid
+      );
+      allow update: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow delete: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+    }
+
+    // Reminders collection
+    match /reminders/{reminderId} {
+      allow read, write: if isSignedIn() && (
+        (resource == null && request.resource.data.patientId == request.auth.uid) ||
+        (resource != null && resource.data.patientId == request.auth.uid)
+      );
+    }
+
+    // Doctor Patient Access grants
+    match /doctorPatientAccess/{accessId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow create, update: if isSignedIn() && (
+        request.resource.data.patientId == request.auth.uid ||
+        request.resource.data.doctorId == request.auth.uid
+      );
+      allow delete: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    // Messages
+    match /messages/{messageId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.doctorId == request.auth.uid ||
+        request.resource.data.patientId == request.auth.uid
+      );
+      allow update: if isSignedIn() && resource.data.patientId == request.auth.uid;
+    }
+
+    // Pharmacy Posts
+    match /pharmacyPosts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.pharmacyId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.pharmacyId == request.auth.uid;
+    }
+
+    // Verification documents
+    match /verificationDocuments/{docId} {
+      allow read, write: if isSignedIn() && (
+        (resource == null && request.resource.data.userId == request.auth.uid) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // AI Interactions
+    match /aiInteractions/{interactionId} {
+      allow read, write: if isSignedIn() && (
+        (resource == null && request.resource.data.userId == request.auth.uid) ||
+        (resource != null && resource.data.userId == request.auth.uid)
+      );
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Thulir — Personal Health Copilot",
+  "description": "Your health records. Your insights. Your copilot. A smart personal healthcare platform connecting Patients, Doctors, and Pharmacies with multilingual AI insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
